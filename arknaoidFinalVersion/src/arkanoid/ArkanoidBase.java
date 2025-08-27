@@ -11,7 +11,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
     private BufferedImage  imgPaleta, imgFondo;
     private int ballX = 0, ballY = 0, ballDiameter = 20;
     private double ballDX = 2, ballDY = -3;
-    private final double BALL_SPEED_INITIAL = 16.0;
+    private final double BALL_SPEED_INITIAL = 8.0;
     private final double BALL_SPEED_INCREMENT = 0.05;
     private int paddleX = 0, paddleY = 0, paddleWidth = 100, paddleHeight = 20, paddleDX = 0;
     private Timer timer;
@@ -41,7 +41,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
         // Ball
         ballDiameter = (int) (getWidth() * ballDiameterFactor);
         if (ballDiameter < 10) ballDiameter = 10;
-        // Bloques: recalcula posición y tamaño para centrar SOLO si se está cambiando de nivel
+        // bloques: recalcula posicion y tamaño para centrar solo si se está cambiando de nivel
         // (NO cuando se pierde una vida)
         if (!bloques.isEmpty() && !evitarRecalculoBloques) {
             int cols = 0, rows = 0;
@@ -159,7 +159,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
         try {
             return javax.imageio.ImageIO.read(getClass().getResource(path));
         } catch (Exception e) {
-            // Si no hay imagen, crea un placeholder
+            // si no hay imagen, crea un cuadrado grits
             BufferedImage img = new BufferedImage(60, 30, BufferedImage.TYPE_INT_ARGB);
             Graphics g = img.getGraphics();
             g.setColor(Color.GRAY);
@@ -172,19 +172,19 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Dibuja el fondo ajustado al tamaño del panel
+        // dibuja el fondo ajustado al tamaño del panel
         if (imgFondo != null) {
             g.drawImage(imgFondo, 0, 0, getWidth(), getHeight(), null);
         }
-        // Dibuja la pelota animada escalada
+        // dibuja la pelota animada escalada
         if (imgPelota != null && imgPelota.getImage() != null) {
             g.drawImage(imgPelota.getImage(), ballX, ballY, ballDiameter, ballDiameter, this);
         }
-        // Dibuja la paleta
+        // dibuja la paleta
         if (imgPaleta != null) {
             g.drawImage(imgPaleta, paddleX, paddleY, paddleWidth, paddleHeight, null);
         }
-        // Dibuja los bloques
+        // dibuja los bloques
         for (Bloque b : bloques) {
             ImageIcon icon = b.getEstadoActual();
             if (icon != null && icon.getImage() != null) {
@@ -194,7 +194,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
                 g.fillRect(b.x, b.y, b.ancho, b.alto);
             }
         }
-        // Si está esperando inicio, dibuja un mensaje
+        // si está esperando inicio dibuja un mensaje para iniciar
         if (esperandoInicio) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.BOLD, 24));
@@ -231,11 +231,11 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             repaint();
             return;
         }
-        // Movimiento de la pelota
+        // movimiento de la pelota
         ballX += ballDX;
         ballY += ballDY;
 
-        // Rebote en bordes laterales
+        // rebote en bordes laterales
         if (ballX <= 0) {
             ballX = 0;
             ballDX = Math.abs(ballDX);
@@ -249,7 +249,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             ballDY = Math.abs(ballDY);
         }
 
-        // Rebote en la paleta con efecto angular
+        // rebote en la paleta con efecto angular
         if (ballY + ballDiameter >= paddleY &&
             ballX + ballDiameter >= paddleX &&
             ballX <= paddleX + paddleWidth) {
@@ -259,7 +259,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             double angle = factor * Math.toRadians(60);
             double speed = Math.sqrt(ballDX * ballDX + ballDY * ballDY);
 
-            // Si el impacto es muy cerca del centro, fuerza un ángulo mínimo para evitar rebote vertical puro
+// si el impacto es muy cerca del centro fuerza un angulo minimo para evitar rebote vertical puro
             if (Math.abs(factor) < 0.1) {
                 angle = Math.copySign(Math.toRadians(15), angle == 0 ? 1 : angle);
             }
@@ -270,12 +270,12 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             ballY = paddleY - ballDiameter;
         }
 
-        // Movimiento de la paleta
+        // movimiento de la paleta
         paddleX += paddleDX;
         if (paddleX < 0) paddleX = 0;
         if (paddleX + paddleWidth > getWidth()) paddleX = getWidth() - paddleWidth;
 
-        // Colisión con bloques
+        // colision con bloques
         for (int i = 0; i < bloques.size(); i++) {
             Bloque b = bloques.get(i);
             Rectangle rectPelota = new Rectangle(ballX, ballY, ballDiameter, ballDiameter);
@@ -292,7 +292,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
                 } else {
                     ballDY *= -1;
                 }
-                // Si es bloque irrompible (tipo 5), variar el ángulo para evitar rebotes infinitos
+  // si es bloque irrompible (tipo 5) cambiar el angulo para evitar rebotes infinitos
                 if (b.tipo == 5) {
                     double randomAngle = Math.toRadians((Math.random() - 0.5) * 20); // entre -10 y +10 grados
                     double speed = Math.sqrt(ballDX * ballDX + ballDY * ballDY);
@@ -305,7 +305,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
                     i--;
                     puntos += 100;
                 }
-                // Aumenta la velocidad de la pelota
+                // aumenta la velocidad de la pelota
                 double speed = Math.sqrt(ballDX * ballDX + ballDY * ballDY) + BALL_SPEED_INCREMENT;
                 double angle = Math.atan2(ballDY, ballDX);
                 ballDX = speed * Math.cos(angle);
@@ -319,7 +319,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             }
         }
 
-        // Game Over y gestión de vidas
+        // game over y gestion de vidas
         if (ballY > getHeight()) {
             vidas--;
             if (vidas > 0) {
@@ -336,7 +336,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             }
         }
 
-        // Cambia de nivel si no hay bloques (ignorando los de tipo 5)
+        // cambia de nivel si no hay bloques (ignorando los de tipo 5)
         boolean soloIrrompibles = true;
         for (Bloque b : bloques) {
             if (b.tipo != 5) {
@@ -372,7 +372,7 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
             ballDX = 2;
             ballDY = -BALL_SPEED_INITIAL;
         }
-        // Botón provisional para pasar de nivel con la tecla 'P'
+        // boton provisional para pasar de nivel con la tecla 'P'
         if (e.getKeyCode() == KeyEvent.VK_P) {
             nivelActual++;
             if (nivelActual < Nivel.niveles.length) {
@@ -398,13 +398,13 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
     @Override
     public void keyTyped(KeyEvent e) {}
 
-    // Getters para HUD
+    // getters para HUD
     public int getVidas() { return vidas; }
     public int getPuntos() { return puntos; }
     public long getTiempoInicio() { return tiempoInicio; }
     public int getNivelActual() { return nivelActual; }
 
-    // Clase Bloque con id/tipo
+    // clase bloque con id/tipo
     class Bloque {
         int x, y, ancho, alto, tipo, golpesRestantes;
         ImageIcon[] estados;
@@ -458,4 +458,5 @@ public class ArkanoidBase extends JPanel implements KeyListener, ActionListener 
         // Redibuja el HUD cada 100ms
         new Timer(100, e -> hud.repaint()).start();
     }
+
 }
